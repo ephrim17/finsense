@@ -22,6 +22,7 @@ final class SwiftUIScreenFactory: NSObject, FlutterPlatformViewFactory {
     let screenID = params?["screenId"] as? String ?? SwiftUIScreenID.commandDeck.rawValue
     let selectedIndex = params?["selectedIndex"] as? Int ?? 0
     let tabBarHeight = params?["tabBarHeight"] as? Double ?? 83
+    let snapshotJSON = params?["snapshotJson"] as? String ?? "{}"
 
     return SwiftUIScreenPlatformView(
       frame: frame,
@@ -29,6 +30,7 @@ final class SwiftUIScreenFactory: NSObject, FlutterPlatformViewFactory {
       screenID: screenID,
       selectedIndex: selectedIndex,
       tabBarHeight: tabBarHeight,
+      snapshotJSON: snapshotJSON,
       messenger: messenger
     )
   }
@@ -45,6 +47,7 @@ final class SwiftUIScreenPlatformView: NSObject, FlutterPlatformView {
     screenID: String,
     selectedIndex: Int,
     tabBarHeight: Double,
+    snapshotJSON: String,
     messenger: FlutterBinaryMessenger
   ) {
     channel = FlutterMethodChannel(
@@ -61,7 +64,8 @@ final class SwiftUIScreenPlatformView: NSObject, FlutterPlatformView {
       for: screenID,
       financeTabBarModel: tabBarModel,
       channel: channel,
-      tabBarHeight: tabBarHeight
+      tabBarHeight: tabBarHeight,
+      snapshotJSON: snapshotJSON
     )
 
     let hostingController = UIHostingController(rootView: rootView)
@@ -97,7 +101,8 @@ final class SwiftUIScreenPlatformView: NSObject, FlutterPlatformView {
     for screenID: String,
     financeTabBarModel: FinanceTabBarModel?,
     channel: FlutterMethodChannel,
-    tabBarHeight: Double
+    tabBarHeight: Double,
+    snapshotJSON: String
   ) -> AnyView {
     guard let knownScreenID = SwiftUIScreenID(rawValue: screenID) else {
       return AnyView(UnsupportedSwiftUIScreenView(screenID: screenID))
@@ -108,7 +113,8 @@ final class SwiftUIScreenPlatformView: NSObject, FlutterPlatformView {
         for: knownScreenID,
         financeTabBarModel: financeTabBarModel,
         channel: channel,
-        tabBarHeight: tabBarHeight
+        tabBarHeight: tabBarHeight,
+        snapshotJSON: snapshotJSON
       )
     )
   }

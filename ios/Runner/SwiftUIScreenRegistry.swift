@@ -7,7 +7,8 @@ enum SwiftUIScreenRegistry {
     for screenID: SwiftUIScreenID,
     financeTabBarModel: FinanceTabBarModel?,
     channel: FlutterMethodChannel,
-    tabBarHeight: Double
+    tabBarHeight: Double,
+    snapshotJSON: String
   ) -> some View {
     switch screenID {
     case .commandDeck:
@@ -24,6 +25,19 @@ enum SwiftUIScreenRegistry {
       } else {
         UnsupportedSwiftUIScreenView(screenID: screenID.rawValue)
       }
+    case .aiInsightsChat:
+      AIInsightsChatHostView(
+        snapshotJSON: snapshotJSON,
+        onClose: {
+          channel.invokeMethod("closeAIInsights", arguments: nil)
+        },
+        onOpenTransaction: { transactionID in
+          channel.invokeMethod(
+            "openTransactionDetails",
+            arguments: ["transactionId": transactionID]
+          )
+        }
+      )
     }
   }
 }
@@ -31,4 +45,5 @@ enum SwiftUIScreenRegistry {
 enum SwiftUIScreenID: String {
   case commandDeck
   case financeTabBar
+  case aiInsightsChat
 }

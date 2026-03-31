@@ -33,6 +33,7 @@ class DashboardScreen extends ConsumerWidget {
     final budgets = ref.watch(budgetsProvider).valueOrNull ?? const [];
     final goals = ref.watch(goalsProvider).valueOrNull ?? const [];
     final insight = ref.watch(quickInsightProvider);
+    final aiInsightsContext = ref.watch(aiInsightsContextProvider);
     final currencyCode =
         ref.watch(userPreferencesProvider).valueOrNull?.currencyCode ??
         user?.currencyCode ??
@@ -173,45 +174,44 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF161214),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Color(0xFFD2B4FF),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Text(
-                          'Your insight is ready',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                InkWell(
+                  onTap: () =>
+                      context.push('/ai-insights', extra: aiInsightsContext),
+                  borderRadius: BorderRadius.circular(22),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161214),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Color(0xFFD2B4FF),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Your insight is ready',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        'Get Pro',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: Colors.white70,
-                        size: 18,
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: Colors.white70,
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

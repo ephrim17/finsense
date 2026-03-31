@@ -7,9 +7,11 @@ import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/budgets/presentation/screens/budgets_screen.dart';
 import '../../features/dashboard/presentation/screens/home_shell_screen.dart';
+import '../../features/dashboard/presentation/screens/ai_insights_screen.dart';
 import '../../features/goals/presentation/screens/goals_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/reports/presentation/screens/reports_screen.dart';
+import '../../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_editor_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
 
@@ -32,6 +34,11 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
+    ),
+    GoRoute(
+      path: '/ai-insights',
+      builder: (context, state) =>
+          AIInsightsScreen(snapshotJson: state.extra as String? ?? '{}'),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -90,6 +97,12 @@ final GoRouter appRouter = GoRouter(
             : TransactionType.expense;
         return TransactionEditorScreen(initialType: initialType);
       },
+    ),
+    GoRoute(
+      path: '/transactions/:transactionId',
+      builder: (context, state) => TransactionDetailScreen(
+        transactionId: state.pathParameters['transactionId'] ?? '',
+      ),
     ),
   ],
 );
