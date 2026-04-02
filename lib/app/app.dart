@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_intent_sync.dart';
 import '../shared/theme/app_theme.dart';
 import 'router/app_router.dart';
 import 'widget_snapshot_sync.dart';
@@ -15,7 +16,9 @@ class FinSenseApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       routerConfig: appRouter,
       builder: (context, child) {
-        return WidgetSnapshotSync(child: child ?? const SizedBox.shrink());
+        return AppIntentSync(
+          child: WidgetSnapshotSync(child: child ?? const SizedBox.shrink()),
+        );
       },
     );
   }

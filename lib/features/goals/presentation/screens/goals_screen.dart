@@ -30,8 +30,6 @@ class GoalsScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.arrow_back_ios_new_rounded),
-                const SizedBox(width: 12),
                 Text(
                   'My Plan',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(

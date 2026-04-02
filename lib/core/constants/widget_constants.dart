@@ -5,4 +5,5 @@ final class WidgetConstants {
   static const channelName = 'com.finsense.widgets';
   static const addExpenseUrl = 'finsense:///transactions/new?type=expense';
   static const transactionsUrl = 'finsense:///transactions';
+  static const budgetsUrl = 'finsense:///budgets';
 }

@@ -7,6 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05C54A292F7D88AD00C2CF30 /* Hotel-invoice-example1.png in Resources */ = {isa = PBXBuildFile; fileRef = 05C54A072F7D88AD00C2CF30 /* Hotel-invoice-example1.png */; };
+		05C54A2A2F7D88AD00C2CF30 /* 11Grocery.png in Resources */ = {isa = PBXBuildFile; fileRef = 05C54A062F7D88AD00C2CF30 /* 11Grocery.png */; };
+		05C54A2B2F7D88AD00C2CF30 /* sampleDocument.png in Resources */ = {isa = PBXBuildFile; fileRef = 05C54A082F7D88AD00C2CF30 /* sampleDocument.png */; };
+		05C54A2C2F7D88AD00C2CF30 /* ScannerBackground.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 05C54A092F7D88AD00C2CF30 /* ScannerBackground.PNG */; };
+		05C54A2D2F7D88AD00C2CF30 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A0B2F7D88AD00C2CF30 /* Camera.swift */; };
+		05C54A2E2F7D88AD00C2CF30 /* ImageDataViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A172F7D88AD00C2CF30 /* ImageDataViewModel.swift */; };
+		05C54A2F2F7D88AD00C2CF30 /* BillCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A1E2F7D88AD00C2CF30 /* BillCardView.swift */; };
+		05C54A302F7D88AD00C2CF30 /* DocumentContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A222F7D88AD00C2CF30 /* DocumentContentView.swift */; };
+		05C54A312F7D88AD00C2CF30 /* BoundingBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A102F7D88AD00C2CF30 /* BoundingBox.swift */; };
+		05C54A322F7D88AD00C2CF30 /* BackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A1D2F7D88AD00C2CF30 /* BackgroundView.swift */; };
+		05C54A332F7D88AD00C2CF30 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A182F7D88AD00C2CF30 /* StorageManager.swift */; };
+		05C54A342F7D88AD00C2CF30 /* ViewBuilders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A132F7D88AD00C2CF30 /* ViewBuilders.swift */; };
+		05C54A352F7D88AD00C2CF30 /* EmptyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A232F7D88AD00C2CF30 /* EmptyResultsView.swift */; };
+		05C54A362F7D88AD00C2CF30 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A1F2F7D88AD00C2CF30 /* CameraView.swift */; };
+		05C54A372F7D88AD00C2CF30 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A142F7D88AD00C2CF30 /* ViewModifiers.swift */; };
+		05C54A382F7D88AD00C2CF30 /* VisionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A192F7D88AD00C2CF30 /* VisionModel.swift */; };
+		05C54A392F7D88AD00C2CF30 /* DataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A162F7D88AD00C2CF30 /* DataModel.swift */; };
+		05C54A3A2F7D88AD00C2CF30 /* PhotoCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A0E2F7D88AD00C2CF30 /* PhotoCapture.swift */; };
+		05C54A3B2F7D88AD00C2CF30 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A0C2F7D88AD00C2CF30 /* CameraPreview.swift */; };
+		05C54A3C2F7D88AD00C2CF30 /* CaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A0D2F7D88AD00C2CF30 /* CaptureService.swift */; };
+		05C54A3D2F7D88AD00C2CF30 /* CommonFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A112F7D88AD00C2CF30 /* CommonFunctions.swift */; };
+		05C54A3E2F7D88AD00C2CF30 /* CustomBillSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A212F7D88AD00C2CF30 /* CustomBillSummaryView.swift */; };
+		05C54A3F2F7D88AD00C2CF30 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A252F7D88AD00C2CF30 /* LoadingView.swift */; };
+		05C54A402F7D88AD00C2CF30 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A122F7D88AD00C2CF30 /* Extensions.swift */; };
+		05C54A412F7D88AD00C2CF30 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A242F7D88AD00C2CF30 /* ImageView.swift */; };
+		05C54A422F7D88AD00C2CF30 /* ScannerAppHome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A272F7D88AD00C2CF30 /* ScannerAppHome.swift */; };
+		05C54A432F7D88AD00C2CF30 /* DS_Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A1B2F7D88AD00C2CF30 /* DS_Router.swift */; };
+		05C54A442F7D88AD00C2CF30 /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C54A202F7D88AD00C2CF30 /* ContactView.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		214870DB94BF292BD20420EB /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB11405BD13A215DAED85540 /* Pods_RunnerTests.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -59,6 +87,34 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		05C54A062F7D88AD00C2CF30 /* 11Grocery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 11Grocery.png; sourceTree = "<group>"; };
+		05C54A072F7D88AD00C2CF30 /* Hotel-invoice-example1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Hotel-invoice-example1.png"; sourceTree = "<group>"; };
+		05C54A082F7D88AD00C2CF30 /* sampleDocument.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sampleDocument.png; sourceTree = "<group>"; };
+		05C54A092F7D88AD00C2CF30 /* ScannerBackground.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScannerBackground.PNG; sourceTree = "<group>"; };
+		05C54A0B2F7D88AD00C2CF30 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		05C54A0C2F7D88AD00C2CF30 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		05C54A0D2F7D88AD00C2CF30 /* CaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureService.swift; sourceTree = "<group>"; };
+		05C54A0E2F7D88AD00C2CF30 /* PhotoCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCapture.swift; sourceTree = "<group>"; };
+		05C54A102F7D88AD00C2CF30 /* BoundingBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBox.swift; sourceTree = "<group>"; };
+		05C54A112F7D88AD00C2CF30 /* CommonFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFunctions.swift; sourceTree = "<group>"; };
+		05C54A122F7D88AD00C2CF30 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		05C54A132F7D88AD00C2CF30 /* ViewBuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewBuilders.swift; sourceTree = "<group>"; };
+		05C54A142F7D88AD00C2CF30 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
+		05C54A162F7D88AD00C2CF30 /* DataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModel.swift; sourceTree = "<group>"; };
+		05C54A172F7D88AD00C2CF30 /* ImageDataViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataViewModel.swift; sourceTree = "<group>"; };
+		05C54A182F7D88AD00C2CF30 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		05C54A192F7D88AD00C2CF30 /* VisionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionModel.swift; sourceTree = "<group>"; };
+		05C54A1B2F7D88AD00C2CF30 /* DS_Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DS_Router.swift; sourceTree = "<group>"; };
+		05C54A1D2F7D88AD00C2CF30 /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
+		05C54A1E2F7D88AD00C2CF30 /* BillCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillCardView.swift; sourceTree = "<group>"; };
+		05C54A1F2F7D88AD00C2CF30 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		05C54A202F7D88AD00C2CF30 /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
+		05C54A212F7D88AD00C2CF30 /* CustomBillSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBillSummaryView.swift; sourceTree = "<group>"; };
+		05C54A222F7D88AD00C2CF30 /* DocumentContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentContentView.swift; sourceTree = "<group>"; };
+		05C54A232F7D88AD00C2CF30 /* EmptyResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyResultsView.swift; sourceTree = "<group>"; };
+		05C54A242F7D88AD00C2CF30 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
+		05C54A252F7D88AD00C2CF30 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		05C54A272F7D88AD00C2CF30 /* ScannerAppHome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerAppHome.swift; sourceTree = "<group>"; };
 		07C2070717BAB3EFE11516DB /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
@@ -119,6 +175,89 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		05C54A0A2F7D88AD00C2CF30 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A062F7D88AD00C2CF30 /* 11Grocery.png */,
+				05C54A072F7D88AD00C2CF30 /* Hotel-invoice-example1.png */,
+				05C54A082F7D88AD00C2CF30 /* sampleDocument.png */,
+				05C54A092F7D88AD00C2CF30 /* ScannerBackground.PNG */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		05C54A0F2F7D88AD00C2CF30 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A0B2F7D88AD00C2CF30 /* Camera.swift */,
+				05C54A0C2F7D88AD00C2CF30 /* CameraPreview.swift */,
+				05C54A0D2F7D88AD00C2CF30 /* CaptureService.swift */,
+				05C54A0E2F7D88AD00C2CF30 /* PhotoCapture.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		05C54A152F7D88AD00C2CF30 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A102F7D88AD00C2CF30 /* BoundingBox.swift */,
+				05C54A112F7D88AD00C2CF30 /* CommonFunctions.swift */,
+				05C54A122F7D88AD00C2CF30 /* Extensions.swift */,
+				05C54A132F7D88AD00C2CF30 /* ViewBuilders.swift */,
+				05C54A142F7D88AD00C2CF30 /* ViewModifiers.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		05C54A1A2F7D88AD00C2CF30 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A162F7D88AD00C2CF30 /* DataModel.swift */,
+				05C54A172F7D88AD00C2CF30 /* ImageDataViewModel.swift */,
+				05C54A182F7D88AD00C2CF30 /* StorageManager.swift */,
+				05C54A192F7D88AD00C2CF30 /* VisionModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		05C54A1C2F7D88AD00C2CF30 /* Routers */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A1B2F7D88AD00C2CF30 /* DS_Router.swift */,
+			);
+			path = Routers;
+			sourceTree = "<group>";
+		};
+		05C54A262F7D88AD00C2CF30 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A1D2F7D88AD00C2CF30 /* BackgroundView.swift */,
+				05C54A1E2F7D88AD00C2CF30 /* BillCardView.swift */,
+				05C54A1F2F7D88AD00C2CF30 /* CameraView.swift */,
+				05C54A202F7D88AD00C2CF30 /* ContactView.swift */,
+				05C54A212F7D88AD00C2CF30 /* CustomBillSummaryView.swift */,
+				05C54A222F7D88AD00C2CF30 /* DocumentContentView.swift */,
+				05C54A232F7D88AD00C2CF30 /* EmptyResultsView.swift */,
+				05C54A242F7D88AD00C2CF30 /* ImageView.swift */,
+				05C54A252F7D88AD00C2CF30 /* LoadingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		05C54A282F7D88AD00C2CF30 /* DocumentScanner */ = {
+			isa = PBXGroup;
+			children = (
+				05C54A0A2F7D88AD00C2CF30 /* Assets */,
+				05C54A0F2F7D88AD00C2CF30 /* Camera */,
+				05C54A152F7D88AD00C2CF30 /* Helpers */,
+				05C54A1A2F7D88AD00C2CF30 /* Model */,
+				05C54A1C2F7D88AD00C2CF30 /* Routers */,
+				05C54A262F7D88AD00C2CF30 /* Views */,
+				05C54A272F7D88AD00C2CF30 /* ScannerAppHome.swift */,
+			);
+			path = DocumentScanner;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,6 +320,7 @@
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
+				05C54A282F7D88AD00C2CF30 /* DocumentScanner */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				6E0000003A00000100000001 /* GoogleService-Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -329,6 +469,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05C54A292F7D88AD00C2CF30 /* Hotel-invoice-example1.png in Resources */,
+				05C54A2A2F7D88AD00C2CF30 /* 11Grocery.png in Resources */,
+				05C54A2B2F7D88AD00C2CF30 /* sampleDocument.png in Resources */,
+				05C54A2C2F7D88AD00C2CF30 /* ScannerBackground.PNG in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				6E0000013A00000100000001 /* GoogleService-Info.plist in Resources */,
@@ -455,6 +599,30 @@
 			buildActionMask = 2147483647;
 			files = (
 				B06A373C2F6A42DD008409A2 /* swiftUIScreenModuleFactory.swift in Sources */,
+				05C54A2D2F7D88AD00C2CF30 /* Camera.swift in Sources */,
+				05C54A2E2F7D88AD00C2CF30 /* ImageDataViewModel.swift in Sources */,
+				05C54A2F2F7D88AD00C2CF30 /* BillCardView.swift in Sources */,
+				05C54A302F7D88AD00C2CF30 /* DocumentContentView.swift in Sources */,
+				05C54A312F7D88AD00C2CF30 /* BoundingBox.swift in Sources */,
+				05C54A322F7D88AD00C2CF30 /* BackgroundView.swift in Sources */,
+				05C54A332F7D88AD00C2CF30 /* StorageManager.swift in Sources */,
+				05C54A342F7D88AD00C2CF30 /* ViewBuilders.swift in Sources */,
+				05C54A352F7D88AD00C2CF30 /* EmptyResultsView.swift in Sources */,
+				05C54A362F7D88AD00C2CF30 /* CameraView.swift in Sources */,
+				05C54A372F7D88AD00C2CF30 /* ViewModifiers.swift in Sources */,
+				05C54A382F7D88AD00C2CF30 /* VisionModel.swift in Sources */,
+				05C54A392F7D88AD00C2CF30 /* DataModel.swift in Sources */,
+				05C54A3A2F7D88AD00C2CF30 /* PhotoCapture.swift in Sources */,
+				05C54A3B2F7D88AD00C2CF30 /* CameraPreview.swift in Sources */,
+				05C54A3C2F7D88AD00C2CF30 /* CaptureService.swift in Sources */,
+				05C54A3D2F7D88AD00C2CF30 /* CommonFunctions.swift in Sources */,
+				05C54A3E2F7D88AD00C2CF30 /* CustomBillSummaryView.swift in Sources */,
+				05C54A3F2F7D88AD00C2CF30 /* LoadingView.swift in Sources */,
+				05C54A402F7D88AD00C2CF30 /* Extensions.swift in Sources */,
+				05C54A412F7D88AD00C2CF30 /* ImageView.swift in Sources */,
+				05C54A422F7D88AD00C2CF30 /* ScannerAppHome.swift in Sources */,
+				05C54A432F7D88AD00C2CF30 /* DS_Router.swift in Sources */,
+				05C54A442F7D88AD00C2CF30 /* ContactView.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				7B2D2F4A2C10000100000001 /* NativeSwiftUIView.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,

@@ -8,13 +8,8 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/widgets/app_scaffold.dart';
 import '../../../../shared/widgets/empty_state_card.dart';
 import '../../../../shared/widgets/premium_card.dart';
-import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/summary_tile.dart';
 import '../../../auth/presentation/controllers/auth_providers.dart';
-import '../../../budgets/presentation/controllers/budget_providers.dart';
-import '../../../budgets/presentation/widgets/budget_progress_card.dart';
-import '../../../goals/presentation/controllers/goals_providers.dart';
-import '../../../goals/presentation/widgets/goal_progress_card.dart';
 import '../../../profile/presentation/controllers/preferences_providers.dart';
 import '../../../transactions/presentation/controllers/transaction_providers.dart';
 import '../../../transactions/presentation/widgets/transaction_list_item.dart';
@@ -30,8 +25,6 @@ class DashboardScreen extends ConsumerWidget {
     final summary = ref.watch(dashboardSummaryProvider);
     final transactions =
         ref.watch(transactionsProvider).valueOrNull ?? const [];
-    final budgets = ref.watch(budgetsProvider).valueOrNull ?? const [];
-    final goals = ref.watch(goalsProvider).valueOrNull ?? const [];
     final insight = ref.watch(quickInsightProvider);
     final aiInsightsContext = ref.watch(aiInsightsContextProvider);
     final currencyCode =
@@ -77,13 +70,13 @@ class DashboardScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'A polished overview for ${AppFormatters.shortMonth(DateTime.now())}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
                   ],
                 ),
+              ),
+              const SizedBox(width: 10),
+              _AddTransactionHeaderButton(
+                icon: Icons.document_scanner_outlined,
+                onTap: () => context.push('/transactions/scan-bill'),
               ),
               const SizedBox(width: 10),
               _AddTransactionHeaderButton(
@@ -114,40 +107,7 @@ class DashboardScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    const Icon(
-                      Icons.info_outline_rounded,
-                      color: AppColors.textSecondary,
-                      size: 18,
-                    ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.divider),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Row(
-                        children: const [
-                          Text(
-                            'Details',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.textSecondary,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -195,13 +155,29 @@ class DashboardScreen extends ConsumerWidget {
                           size: 20,
                         ),
                         const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            'Your insight is ready',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Ask FinSense',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                insight,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -294,86 +270,6 @@ class DashboardScreen extends ConsumerWidget {
                     .toList(),
               ),
             ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Text(
-                'My Plan',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.add_rounded, color: Colors.white),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.open_in_new_rounded, size: 20),
-            ],
-          ),
-          const SizedBox(height: 18),
-          const SectionHeader(title: 'Goals', actionLabel: 'View All'),
-          const SizedBox(height: 12),
-          if (goals.isEmpty)
-            const EmptyStateCard(
-              title: 'No goals yet',
-              message:
-                  'Add a vacation, emergency fund, or car goal to keep savings visible.',
-              icon: Icons.flag_rounded,
-            )
-          else
-            ...goals
-                .take(1)
-                .map(
-                  (goal) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: GoalProgressCard(
-                      goal: goal,
-                      currencyCode: currencyCode,
-                    ),
-                  ),
-                ),
-          const SectionHeader(title: 'Budgets', actionLabel: 'View All'),
-          const SizedBox(height: 10),
-          if (budgets.isEmpty)
-            const EmptyStateCard(
-              title: 'No budgets configured',
-              message:
-                  'Add monthly category budgets so spending progress stays visible.',
-              icon: Icons.account_balance_wallet_rounded,
-            )
-          else
-            ...budgets
-                .take(2)
-                .map(
-                  (budget) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: BudgetProgressCard(
-                      budget: budget,
-                      currencyCode: currencyCode,
-                    ),
-                  ),
-                ),
-          const SizedBox(height: 24),
-          PremiumCard(
-            color: AppColors.lightPurple,
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(child: Text(insight)),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -381,9 +277,13 @@ class DashboardScreen extends ConsumerWidget {
 }
 
 class _AddTransactionHeaderButton extends StatelessWidget {
-  const _AddTransactionHeaderButton({required this.onTap});
+  const _AddTransactionHeaderButton({
+    required this.onTap,
+    this.icon = Icons.add_rounded,
+  });
 
   final VoidCallback onTap;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -402,8 +302,8 @@ class _AddTransactionHeaderButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.divider),
           ),
-          child: const Icon(
-            Icons.add_rounded,
+          child: Icon(
+            icon,
             color: AppColors.primary,
             size: 24,
           ),

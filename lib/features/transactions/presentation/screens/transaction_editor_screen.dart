@@ -7,15 +7,18 @@ import '../../../../core/enums/finance_enums.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../auth/presentation/controllers/auth_providers.dart';
 import '../../../profile/presentation/controllers/preferences_providers.dart';
+import '../../domain/entities/transaction_record.dart';
 import '../controllers/transaction_providers.dart';
 
 class TransactionEditorScreen extends ConsumerStatefulWidget {
   const TransactionEditorScreen({
     super.key,
     this.initialType = TransactionType.expense,
+    this.initialTransaction,
   });
 
   final TransactionType initialType;
+  final TransactionRecord? initialTransaction;
 
   @override
   ConsumerState<TransactionEditorScreen> createState() =>
@@ -24,6 +27,7 @@ class TransactionEditorScreen extends ConsumerStatefulWidget {
 
 class _TransactionEditorScreenState
     extends ConsumerState<TransactionEditorScreen> {
+  final _titleController = TextEditingController();
   final _accountController = TextEditingController(text: 'Main Account');
   final _paymentController = TextEditingController(text: 'Card');
   final _noteController = TextEditingController();
@@ -36,12 +40,26 @@ class _TransactionEditorScreenState
   @override
   void initState() {
     super.initState();
-    _type = widget.initialType;
-    _selectedCategory = FinanceDefaults.categoriesFor(_type).first;
+    final initialTransaction = widget.initialTransaction;
+    _type = initialTransaction?.type ?? widget.initialType;
+    final categories = FinanceDefaults.categoriesFor(_type);
+    _selectedCategory = categories.contains(initialTransaction?.categoryName)
+        ? initialTransaction!.categoryName
+        : categories.first;
+    _titleController.text = initialTransaction?.title ?? '';
+    _accountController.text = initialTransaction?.accountId ?? 'Main Account';
+    _paymentController.text =
+        initialTransaction?.paymentMethod ?? 'Card';
+    _noteController.text = initialTransaction?.note ?? '';
+    _selectedDate = initialTransaction?.transactionDate ?? DateTime.now();
+    if (initialTransaction != null) {
+      _amountInput = _formatInitialAmount(initialTransaction.amount);
+    }
   }
 
   @override
   void dispose() {
+    _titleController.dispose();
     _accountController.dispose();
     _paymentController.dispose();
     _noteController.dispose();
@@ -110,24 +128,10 @@ class _TransactionEditorScreenState
                           icon: Icons.arrow_back_ios_new_rounded,
                           onTap: _closeEditor,
                         ),
-                        const Expanded(child: SizedBox.shrink()),
-                        Expanded(
-                          child: Text(
-                            _type == TransactionType.expense
-                                ? 'Add Expense'
-                                : 'Add Income',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF1F1B2D),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 52),
+                        const Spacer(),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 18),
                     _TypeToggle(
                       selectedType: _type,
                       onChanged: (type) => setState(() {
@@ -142,10 +146,10 @@ class _TransactionEditorScreenState
                       amountDisplay,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 42,
+                        fontSize: 34,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1F1B2D),
-                        letterSpacing: -1.5,
+                        letterSpacing: -1.0,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -153,7 +157,7 @@ class _TransactionEditorScreenState
                       'Enter amount',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Colors.black.withValues(alpha: 0.45),
                       ),
                     ),
@@ -177,6 +181,15 @@ class _TransactionEditorScreenState
                             }),
                           );
                         },
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
+                        hintText: 'Enter a title',
+                        prefixIcon: Icon(Icons.title_rounded),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -234,11 +247,13 @@ class _TransactionEditorScreenState
                           child: Text(
                             actionState.isLoading
                                 ? 'Saving...'
-                                : _type == TransactionType.expense
-                                ? 'Add Expense'
-                                : 'Add Income',
+                                : widget.initialTransaction == null
+                                ? _type == TransactionType.expense
+                                      ? 'Add Expense'
+                                      : 'Add Income'
+                                : 'Save Changes',
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 20,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -294,7 +309,7 @@ class _TransactionEditorScreenState
             children: [
               const Text(
                 'Transaction details',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -362,17 +377,26 @@ class _TransactionEditorScreenState
         .read(transactionActionControllerProvider.notifier)
         .save(
           userId: userId,
-          title: _selectedCategory,
+          title: _titleController.text.trim().isEmpty
+              ? _selectedCategory
+              : _titleController.text.trim(),
           amount: amount,
           categoryName: _selectedCategory,
           accountId: _accountController.text.trim(),
           paymentMethod: _paymentController.text.trim(),
           transactionDate: _selectedDate,
           type: _type,
+          id: widget.initialTransaction?.id,
+          createdAt: widget.initialTransaction?.createdAt,
           note: _noteController.text.trim().isEmpty
               ? null
               : _noteController.text.trim(),
         );
+  }
+
+  String _formatInitialAmount(double amount) {
+    final isWhole = amount == amount.roundToDouble();
+    return isWhole ? amount.toInt().toString() : amount.toString();
   }
 
   void _closeEditor() {
@@ -489,7 +513,7 @@ class _ToggleSegment extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w700,
             color: isSelected ? Colors.white : const Color(0xFF1F1B2D),
           ),
@@ -529,12 +553,12 @@ class _CategoryChip extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 18)),
+            Text(emoji, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
               label,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1F1B2D),
               ),
@@ -706,7 +730,7 @@ class _KeypadButton extends StatelessWidget {
               : Text(
                   label!,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF1F1B2D),
                   ),

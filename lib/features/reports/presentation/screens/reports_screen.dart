@@ -9,15 +9,24 @@ import '../../../../shared/widgets/premium_card.dart';
 import '../../../auth/presentation/controllers/auth_providers.dart';
 import '../../../profile/presentation/controllers/preferences_providers.dart';
 import '../providers/report_providers.dart';
+import '../widgets/report_bar_chart.dart';
 import '../widgets/report_donut_chart.dart';
 
-class ReportsScreen extends ConsumerWidget {
+class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends ConsumerState<ReportsScreen> {
+  int? _selectedCategoryIndex;
+
+  @override
+  Widget build(BuildContext context) {
     final report = ref.watch(reportSnapshotProvider);
     final viewMode = ref.watch(reportViewModeProvider);
+    final chartMode = ref.watch(reportChartModeProvider);
     final user = ref.watch(currentUserProvider).valueOrNull;
     final currencyCode =
         ref.watch(userPreferencesProvider).valueOrNull?.currencyCode ??
@@ -32,6 +41,14 @@ class ReportsScreen extends ConsumerWidget {
         : report.totalIncome;
     final categories = activeCategorySpend.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    final selectedEntry = _selectedCategoryIndex != null &&
+            _selectedCategoryIndex! >= 0 &&
+            _selectedCategoryIndex! < categories.length
+        ? categories[_selectedCategoryIndex!]
+        : null;
+    final selectedValue = selectedEntry?.value ?? activeTotal;
+    final selectedLabel = selectedEntry?.key ??
+        (isExpenseMode ? 'Total Expenses' : 'Total Income');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,8 +58,6 @@ class ReportsScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.arrow_back_ios_new_rounded),
-                const SizedBox(width: 12),
                 Text(
                   'Report',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -90,10 +105,13 @@ class ReportsScreen extends ConsumerWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () =>
-                                ref
-                                        .read(reportViewModeProvider.notifier)
-                                        .state =
-                                    ReportViewMode.expenses,
+                                setState(() {
+                                  ref
+                                          .read(reportViewModeProvider.notifier)
+                                          .state =
+                                      ReportViewMode.expenses;
+                                  _selectedCategoryIndex = null;
+                                }),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -128,10 +146,13 @@ class ReportsScreen extends ConsumerWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () =>
-                                ref
-                                        .read(reportViewModeProvider.notifier)
-                                        .state =
-                                    ReportViewMode.income,
+                                setState(() {
+                                  ref
+                                          .read(reportViewModeProvider.notifier)
+                                          .state =
+                                      ReportViewMode.income;
+                                  _selectedCategoryIndex = null;
+                                }),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -176,69 +197,248 @@ class ReportsScreen extends ConsumerWidget {
                         ),
                       ),
                       const Spacer(),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF6F1FF),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.bar_chart_rounded,
-                          color: AppColors.textSecondary,
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          ref.read(reportChartModeProvider.notifier).state =
+                              ReportChartMode.bar;
+                        }),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: chartMode == ReportChartMode.bar
+                                ? AppColors.lightPurple
+                                : const Color(0xFFF6F1FF),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.bar_chart_rounded,
+                            color: chartMode == ReportChartMode.bar
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.lightPurple,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.pie_chart_rounded,
-                          color: AppColors.primary,
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          ref.read(reportChartModeProvider.notifier).state =
+                              ReportChartMode.pie;
+                        }),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: chartMode == ReportChartMode.pie
+                                ? AppColors.lightPurple
+                                : const Color(0xFFF6F1FF),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.pie_chart_rounded,
+                            color: chartMode == ReportChartMode.pie
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ReportDonutChart(values: activeCategorySpend),
-                      Column(
-                        children: [
-                          Text(
-                            isExpenseMode ? 'Total Expenses' : 'Total Income',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
+                  if (chartMode == ReportChartMode.pie)
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ReportDonutChart(
+                          entries: categories,
+                          selectedIndex: _selectedCategoryIndex,
+                          animationKey: '${viewMode.name}-${chartMode.name}-${categories.length}',
+                          onSectionTap: (index) {
+                            setState(() {
+                              _selectedCategoryIndex = index;
+                            });
+                          },
+                        ),
+                        IgnorePointer(
+                          child: SizedBox(
+                            width: 132,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  selectedLabel,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    AppFormatters.currency(
+                                      selectedValue,
+                                      currencyCode: currencyCode,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 30,
+                                        ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            AppFormatters.currency(
-                              activeTotal,
-                              currencyCode: currencyCode,
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isExpenseMode
+                                        ? 'Total Expenses'
+                                        : 'Total Income',
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    AppFormatters.currency(
+                                      activeTotal,
+                                      currencyCode: currencyCode,
+                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
                             ),
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.w800),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ],
+                        ),
+                        ReportBarChart(
+                          entries: categories.take(5).toList(),
+                          animationKey: '${viewMode.name}-${chartMode.name}-${categories.length}',
+                        ),
+                      ],
+                    ),
                   const SizedBox(height: 12),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 260),
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 220),
+                      opacity: selectedEntry == null ||
+                              chartMode != ReportChartMode.pie
+                          ? 0
+                          : 1,
+                      child: selectedEntry == null ||
+                              chartMode != ReportChartMode.pie
+                          ? const SizedBox.shrink()
+                          : Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: reportCategoryColorForIndex(
+                                  _selectedCategoryIndex!,
+                                ).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: reportCategoryColorForIndex(
+                                    _selectedCategoryIndex!,
+                                  ).withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 34,
+                                    height: 34,
+                                    decoration: BoxDecoration(
+                                      color: reportCategoryColorForIndex(
+                                        _selectedCategoryIndex!,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.pie_chart_rounded,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          selectedEntry.key,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '${((selectedEntry.value / activeTotal) * 100).toStringAsFixed(0)}% of ${isExpenseMode ? 'expenses' : 'income'}',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    AppFormatters.currency(
+                                      selectedEntry.value,
+                                      currencyCode: currencyCode,
+                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ),
                   Row(
                     children: [
                       Text(
-                        isExpenseMode ? 'All Expenses' : 'All Income',
+                        selectedEntry == null
+                            ? (isExpenseMode ? 'All Expenses' : 'All Income')
+                            : 'Selected Category',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const Spacer(),
                       Text(
-                        'Total  ${AppFormatters.currency(activeTotal, currencyCode: currencyCode)}',
+                        selectedEntry == null
+                            ? 'Total  ${AppFormatters.currency(activeTotal, currencyCode: currencyCode)}'
+                            : AppFormatters.currency(
+                                selectedEntry.value,
+                                currencyCode: currencyCode,
+                              ),
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
@@ -261,8 +461,15 @@ class ReportsScreen extends ConsumerWidget {
             else
               ...categories
                   .take(4)
+                  .toList()
+                  .asMap()
+                  .entries
                   .map(
-                    (entry) => Padding(
+                    (item) {
+                      final index = item.key;
+                      final entry = item.value;
+                      final accent = reportCategoryColorForIndex(index);
+                      return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: PremiumCard(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
@@ -274,12 +481,12 @@ class ReportsScreen extends ConsumerWidget {
                                   width: 36,
                                   height: 36,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF4F7FF),
+                                    color: accent.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(18),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.category_rounded,
-                                    color: AppColors.primary,
+                                    color: accent,
                                     size: 18,
                                   ),
                                 ),
@@ -330,7 +537,9 @@ class ReportsScreen extends ConsumerWidget {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFEFF8EF),
+                                        color: AppColors.success.withValues(
+                                          alpha: 0.12,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Text(
@@ -355,13 +564,14 @@ class ReportsScreen extends ConsumerWidget {
                                     : entry.value / activeTotal,
                                 minHeight: 8,
                                 backgroundColor: const Color(0xFFF0EDF5),
-                                color: AppColors.primary,
+                                color: accent,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                    );
+                    },
                   ),
           ],
         ),

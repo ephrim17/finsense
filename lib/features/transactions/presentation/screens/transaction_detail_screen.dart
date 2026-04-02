@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/finance_defaults.dart';
 import '../../../../core/enums/finance_enums.dart';
@@ -84,12 +85,77 @@ class TransactionDetailScreen extends ConsumerWidget {
                 ),
                 if (transaction.note != null && transaction.note!.isNotEmpty)
                   _DetailRow(label: 'Note', value: transaction.note!),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push(
+                          '/transactions/$transactionId/edit',
+                          extra: transaction,
+                        ),
+                        icon: const Icon(Icons.edit_rounded),
+                        label: const Text('Edit'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.error,
+                        ),
+                        onPressed: () => _confirmDelete(context, ref, transaction),
+                        icon: const Icon(Icons.delete_outline_rounded),
+                        label: const Text('Delete'),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    transaction,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete transaction?'),
+        content: Text(
+          'This will permanently remove "${transaction.title}" from your transactions.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    await ref
+        .read(transactionActionControllerProvider.notifier)
+        .delete(userId: transaction.userId, transactionId: transaction.id);
+
+    if (context.mounted) {
+      context.pop();
+    }
   }
 }
 

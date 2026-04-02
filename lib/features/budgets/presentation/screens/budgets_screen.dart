@@ -32,10 +32,6 @@ class BudgetsScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
-                _IconCircleButton(
-                  icon: Icons.arrow_back_ios_new_rounded,
-                  onTap: () => Navigator.of(context).maybePop(),
-                ),
                 const Expanded(
                   child: Text(
                     'Categories',

@@ -1,10 +1,19 @@
 import Flutter
 import Foundation
+import PhotosUI
 import SwiftUI
 import UIKit
 #if canImport(FoundationModels)
 import FoundationModels
 #endif
+
+private enum FinSenseTypeScale {
+  static let hero: CGFloat = 26
+  static let title: CGFloat = 20
+  static let body: CGFloat = 15
+  static let label: CGFloat = 13
+  static let caption: CGFloat = 12
+}
 
 struct NativeCommandDeckView: View {
   var body: some View {
@@ -22,7 +31,7 @@ struct NativeCommandDeckView: View {
 
       VStack(spacing: 20) {
         Text("Native surfaces for Flutter, designed to scale.")
-          .font(.system(size: 28, weight: .bold, design: .rounded))
+          .font(.system(size: FinSenseTypeScale.hero, weight: .bold, design: .rounded))
           .foregroundStyle(.white)
           .multilineTextAlignment(.center)
 
@@ -118,8 +127,8 @@ struct NativeUIKitTabBarRepresentable: UIViewRepresentable {
     tabBar.items = [
       UITabBarItem(title: "Home", image: UIImage(systemName: "house"), selectedImage: UIImage(systemName: "house.fill")),
       UITabBarItem(title: "Transactions", image: UIImage(systemName: "list.bullet.rectangle"), selectedImage: UIImage(systemName: "list.bullet.rectangle.portrait.fill")),
-      UITabBarItem(title: "Budgets", image: UIImage(systemName: "wallet.bifold"), selectedImage: UIImage(systemName: "wallet.bifold.fill")),
-      UITabBarItem(title: "Goals", image: UIImage(systemName: "flag"), selectedImage: UIImage(systemName: "flag.fill")),
+      UITabBarItem(title: "Plan", image: UIImage(systemName: "square.grid.2x2"), selectedImage: UIImage(systemName: "square.grid.2x2.fill")),
+      UITabBarItem(title: "Insights", image: UIImage(systemName: "sparkles.rectangle.stack"), selectedImage: UIImage(systemName: "sparkles.rectangle.stack.fill")),
       UITabBarItem(title: "Reports", image: UIImage(systemName: "chart.pie"), selectedImage: UIImage(systemName: "chart.pie.fill"))
     ]
     tabBar.selectedItem = tabBar.items?[safe: selectedIndex]
@@ -174,6 +183,274 @@ struct UnsupportedSwiftUIScreenView: View {
           .foregroundStyle(.white.opacity(0.7))
       }
       .padding(24)
+    }
+  }
+}
+
+struct UnsupportedBillScannerView: View {
+  let onDismiss: () -> Void
+
+  @State private var showAlert = true
+
+  var body: some View {
+    ZStack {
+      LinearGradient(
+        colors: [
+          Color(red: 0.97, green: 0.95, blue: 1.0),
+          Color.white
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+      )
+      .ignoresSafeArea()
+    }
+    .alert("iOS 26 Required", isPresented: $showAlert) {
+      Button("OK") {
+        onDismiss()
+      }
+    } message: {
+      Text("Bill scanning is available only on iOS 26 or newer.")
+    }
+    .onAppear {
+      showAlert = true
+    }
+  }
+}
+
+@available(iOS 26.0, *)
+struct BillScannerHostView: View {
+  let channel: FlutterMethodChannel
+  let onClose: () -> Void
+
+  private let defaultBillAssetName = "11Grocery"
+
+  @StateObject private var visionModel = VisionModel()
+  @State private var pickerSource: UIImagePickerController.SourceType?
+  @State private var pickedImageData: Data?
+  @State private var isShowingSourceOptions = false
+  @State private var isShowingImagePicker = false
+
+  var body: some View {
+    ZStack {
+      LinearGradient(
+        colors: [
+          Color(red: 0.97, green: 0.95, blue: 1.0),
+          Color.white
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+      )
+      .ignoresSafeArea()
+
+      VStack(alignment: .leading, spacing: 20) {
+        HStack {
+          Button(action: onClose) {
+            Image(systemName: "chevron.left")
+              .font(.system(size: 17, weight: .semibold))
+              .foregroundStyle(Color.black)
+              .frame(width: 42, height: 42)
+              .background(Color.white)
+              .clipShape(Circle())
+          }
+          Spacer()
+        }
+
+        Text("Scan Bill")
+          .font(.system(size: FinSenseTypeScale.hero, weight: .bold))
+          .foregroundStyle(Color.black)
+
+        Text("FinSense starts with a default sample bill for testing. You can still switch to camera or photo library any time.")
+          .font(.system(size: FinSenseTypeScale.body))
+          .foregroundStyle(Color.black.opacity(0.65))
+
+        RoundedRectangle(cornerRadius: 28, style: .continuous)
+          .fill(Color.white)
+          .overlay {
+            VStack(spacing: 16) {
+              Image(systemName: pickedImageData == nil ? "doc.text.viewfinder" : "checkmark.circle.fill")
+                .font(.system(size: 46, weight: .medium))
+                .foregroundStyle(pickedImageData == nil ? Color.blue : Color.green)
+
+              if let pickedImageData, let image = UIImage(data: pickedImageData) {
+                Image(uiImage: image)
+                  .resizable()
+                  .scaledToFit()
+                  .frame(maxHeight: 260)
+                  .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+              } else {
+                Text("No bill selected yet")
+                  .font(.system(size: FinSenseTypeScale.body, weight: .semibold))
+                  .foregroundStyle(Color.black)
+              }
+
+              if let scannedBill = visionModel.scannedBill {
+                VStack(alignment: .leading, spacing: 8) {
+                  Text(scannedBill.title)
+                    .font(.system(size: FinSenseTypeScale.body, weight: .semibold))
+                  Text("Detected total: \(scannedBill.currencySymbol)\(String(format: "%.2f", scannedBill.totalAmount))")
+                    .font(.system(size: FinSenseTypeScale.body, weight: .medium))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(Color(red: 0.95, green: 0.98, blue: 0.96))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+              }
+            }
+            .padding(20)
+          }
+
+        VStack(spacing: 12) {
+          Button(action: {
+            isShowingSourceOptions = true
+          }) {
+            Text(pickedImageData == nil ? "Choose Camera or Photo Instead" : "Scan Another Bill")
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.borderedProminent)
+          .controlSize(.large)
+
+          if pickedImageData != nil {
+            Button(role: .cancel, action: {
+              pickedImageData = nil
+              visionModel.resetState()
+            }) {
+              Text("Clear")
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+          }
+        }
+
+        Spacer()
+      }
+      .padding(20)
+
+      LoadingOverlayView(loadingText: visionModel.loadingText)
+    }
+    .confirmationDialog("Select Source", isPresented: $isShowingSourceOptions) {
+      if UIImagePickerController.isSourceTypeAvailable(.camera) {
+        Button("Camera") {
+          pickerSource = .camera
+          isShowingImagePicker = true
+        }
+      }
+      Button("Photo Library") {
+        pickerSource = .photoLibrary
+        isShowingImagePicker = true
+      }
+      Button("Cancel", role: .cancel) {}
+    }
+    .sheet(isPresented: $isShowingImagePicker) {
+      if let pickerSource {
+        BillImagePicker(sourceType: pickerSource) { data in
+          pickedImageData = data
+          Task {
+            await processBill(data)
+          }
+        }
+      }
+    }
+    .task {
+      await loadDefaultBillIfNeeded()
+    }
+  }
+
+  @MainActor
+  private func processBill(_ imageData: Data) async {
+    guard let scannedBill = await visionModel.recognizeBill(in: imageData) else {
+      channel.invokeMethod(
+        "scanFailed",
+        arguments: ["message": "I couldn’t detect a bill total from that image."]
+      )
+      return
+    }
+
+    channel.invokeMethod(
+      "scanCompleted",
+      arguments: [
+        "title": scannedBill.title,
+        "amount": scannedBill.totalAmount,
+        "currencySymbol": scannedBill.currencySymbol,
+        "date": scannedBill.date
+      ]
+    )
+  }
+
+  @MainActor
+  private func loadDefaultBillIfNeeded() async {
+    guard pickedImageData == nil,
+          visionModel.scannedBill == nil,
+          let imageData = defaultBillImageData()
+    else {
+      return
+    }
+
+    pickedImageData = imageData
+    await processBill(imageData)
+  }
+
+  private func defaultBillImageData() -> Data? {
+    if let assetData = UIImage(named: defaultBillAssetName)?.pngData() {
+      return assetData
+    }
+
+    if let bundledURL = Bundle.main.url(
+      forResource: defaultBillAssetName,
+      withExtension: "png",
+      subdirectory: "DocumentScanner/Assets"
+    ) {
+      return try? Data(contentsOf: bundledURL)
+    }
+
+    return nil
+  }
+}
+
+@available(iOS 26.0, *)
+struct BillImagePicker: UIViewControllerRepresentable {
+  let sourceType: UIImagePickerController.SourceType
+  let onImagePicked: (Data) -> Void
+
+  func makeCoordinator() -> Coordinator {
+    Coordinator(onImagePicked: onImagePicked)
+  }
+
+  func makeUIViewController(context: Context) -> UIImagePickerController {
+    let picker = UIImagePickerController()
+    picker.delegate = context.coordinator
+    picker.sourceType = sourceType
+    picker.allowsEditing = false
+    return picker
+  }
+
+  func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+  final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    let onImagePicked: (Data) -> Void
+
+    init(onImagePicked: @escaping (Data) -> Void) {
+      self.onImagePicked = onImagePicked
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+      picker.dismiss(animated: true)
+    }
+
+    func imagePickerController(
+      _ picker: UIImagePickerController,
+      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
+      defer {
+        picker.dismiss(animated: true)
+      }
+
+      guard let image = info[.originalImage] as? UIImage,
+            let data = image.jpegData(compressionQuality: 0.9) else {
+        return
+      }
+
+      onImagePicked(data)
     }
   }
 }
@@ -339,11 +616,11 @@ private struct AIInsightsChatView: View {
           }
 
           VStack(alignment: .leading, spacing: 6) {
-            Text("FinSense AI")
-              .font(.system(size: 30, weight: .bold, design: .rounded))
+            Text("Ask FinSense")
+              .font(.system(size: FinSenseTypeScale.hero, weight: .bold, design: .rounded))
               .foregroundStyle(.white)
-            Text("Quick budgeting and spending insights from your current data.")
-              .font(.system(size: 15, weight: .medium))
+            Text("Explore your spending in plain language, right on device.")
+              .font(.system(size: FinSenseTypeScale.body, weight: .medium))
               .foregroundStyle(.white.opacity(0.78))
           }
           Spacer()
@@ -352,18 +629,6 @@ private struct AIInsightsChatView: View {
         .padding(.top, 18)
         .padding(.bottom, 14)
 
-        if !model.insightCards.isEmpty {
-          ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-              ForEach(model.insightCards) { card in
-                _AIInsightCard(card: card)
-              }
-            }
-            .padding(.horizontal, 20)
-          }
-          .padding(.bottom, 16)
-        }
-
         ScrollView(.horizontal, showsIndicators: false) {
           HStack(spacing: 10) {
             ForEach(model.starterPrompts, id: \.self) { prompt in
@@ -371,31 +636,11 @@ private struct AIInsightsChatView: View {
                 model.send(prompt: prompt)
               } label: {
                 Text(prompt)
-                  .font(.system(size: 13, weight: .semibold))
+                  .font(.system(size: FinSenseTypeScale.label, weight: .semibold))
                   .padding(.horizontal, 14)
                   .padding(.vertical, 10)
                   .background(Color.white.opacity(0.14))
                   .foregroundStyle(.white)
-                  .clipShape(Capsule())
-              }
-            }
-          }
-          .padding(.horizontal, 20)
-        }
-        .padding(.bottom, 16)
-
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 10) {
-            ForEach(model.statementFilterPrompts, id: \.self) { prompt in
-              Button {
-                model.send(prompt: prompt)
-              } label: {
-                Text(prompt)
-                  .font(.system(size: 12, weight: .semibold))
-                  .padding(.horizontal, 14)
-                  .padding(.vertical, 9)
-                  .background(Color.white.opacity(0.1))
-                  .foregroundStyle(.white.opacity(0.92))
                   .clipShape(Capsule())
               }
             }
@@ -455,7 +700,7 @@ private struct AIInsightsChatView: View {
                       Image(systemName: "sparkles")
                         .font(.system(size: 11, weight: .bold))
                       Text(prompt)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: FinSenseTypeScale.caption, weight: .semibold))
                         .lineLimit(1)
                     }
                     .padding(.horizontal, 12)
@@ -472,9 +717,9 @@ private struct AIInsightsChatView: View {
           }
 
           HStack(spacing: 12) {
-            TextField("Ask about budgets, spending, goals...", text: $model.draft, axis: .vertical)
+            TextField("Try: card spends this month or travel above 1000", text: $model.draft, axis: .vertical)
               .textFieldStyle(.plain)
-              .font(.system(size: 16, weight: .medium))
+              .font(.system(size: FinSenseTypeScale.body, weight: .medium))
               .foregroundStyle(.white)
               .padding(.horizontal, 16)
               .padding(.vertical, 14)
@@ -713,64 +958,6 @@ private final class AIInsightsChatViewModel: ObservableObject {
     AIInsightsChatViewModel.starterPrompts(for: snapshot)
   }
 
-  var statementFilterPrompts: [String] {
-    AIInsightsChatViewModel.statementFilterPrompts()
-  }
-
-  var insightCards: [AIInsightCardModel] {
-    var cards: [AIInsightCardModel] = []
-
-    if let highlight = snapshot.signals?.overspendingHighlights.first {
-      cards.append(
-        AIInsightCardModel(
-          title: "Budget Risk",
-          value: highlight.categoryName,
-          caption: "\(Int((highlight.progress * 100).rounded()))% used of \(Self.currency(highlight.limitAmount))",
-          icon: "exclamationmark.triangle.fill",
-          tint: Color(red: 1.0, green: 0.74, blue: 0.36)
-        )
-      )
-    }
-
-    if let anomaly = snapshot.signals?.transactionAnomalies.first {
-      cards.append(
-        AIInsightCardModel(
-          title: "Large Expense",
-          value: anomaly.title,
-          caption: "\(Self.currency(anomaly.amount)) via \(anomaly.paymentMethod)",
-          icon: "waveform.path.ecg",
-          tint: Color(red: 1.0, green: 0.53, blue: 0.56)
-        )
-      )
-    }
-
-    if let topUp = snapshot.signals?.suggestedGoalTopUp, topUp > 0 {
-      cards.append(
-        AIInsightCardModel(
-          title: "Goal Top-Up",
-          value: Self.currency(topUp),
-          caption: "Suggested contribution per goal from current cash flow",
-          icon: "flag.checkered.2.crossed",
-          tint: Color(red: 0.55, green: 0.90, blue: 0.72)
-        )
-      )
-    }
-
-    if cards.isEmpty, let summary = snapshot.summary {
-      cards.append(
-        AIInsightCardModel(
-          title: "Current Balance",
-          value: Self.currency(summary.balance),
-          caption: "Income \(Self.currency(summary.income)) vs expenses \(Self.currency(summary.expenses))",
-          icon: "sparkles",
-          tint: Color(red: 0.82, green: 0.70, blue: 1.0)
-        )
-      )
-    }
-
-    return cards
-  }
-
   func send(prompt: String) {
     let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmedPrompt.isEmpty, !isLoading else {
@@ -779,6 +966,29 @@ private final class AIInsightsChatViewModel: ObservableObject {
 
     draft = ""
     messages.append(AIChatMessage(role: .user, text: trimmedPrompt))
+
+    if let comparisonResponse = periodComparisonResponse(for: trimmedPrompt) {
+      messages.append(
+        AIChatMessage(
+          role: .assistant,
+          text: comparisonResponse
+        )
+      )
+      followUpPrompts = nextFollowUps(for: trimmedPrompt)
+      return
+    }
+
+    if let filteredResponse = transactionExplorerResponse(for: trimmedPrompt) {
+      messages.append(
+        AIChatMessage(
+          role: .assistant,
+          text: filteredResponse.text,
+          transactions: filteredResponse.transactions
+        )
+      )
+      followUpPrompts = nextFollowUps(for: trimmedPrompt)
+      return
+    }
 
     if let statementResponse = statementTransactionsResponse(for: trimmedPrompt) {
       messages.append(
@@ -863,66 +1073,23 @@ private final class AIInsightsChatViewModel: ObservableObject {
   private static func initialMessage(for snapshot: AIInsightsSnapshot) -> String {
     let expenseText = currency(snapshot.summary?.expenses ?? 0)
     let balanceText = currency(snapshot.summary?.balance ?? 0)
-    let overspendingCount = snapshot.signals?.overspendingHighlights.count ?? 0
-    let anomalyCount = snapshot.signals?.transactionAnomalies.count ?? 0
-    var lead = "I can summarize spending patterns, budget pressure, and goal progress from your current finance data. Right now, your balance is \(balanceText) and expenses are \(expenseText)."
-    if overspendingCount > 0 {
-      lead += " I’m already seeing \(overspendingCount) budget area\(overspendingCount == 1 ? "" : "s") that need attention."
-    }
-    if anomalyCount > 0 {
-      lead += " I also spotted \(anomalyCount) unusually large expense\(anomalyCount == 1 ? "" : "s")."
-    }
-    return "\(lead) Ask me for a quick monthly readout or a category breakdown."
+    return """
+    I’m your on-device spend explorer. I’m best at:
+    • card spends this month
+    • travel above 1000
+    • compare this month vs last month
+
+    Right now, your balance is \(balanceText) and expenses are \(expenseText).
+    """
   }
 
   private static func starterPrompts(for snapshot: AIInsightsSnapshot) -> [String] {
-    var prompts: [String] = []
-
-    let atRiskBudgets = snapshot.budgets.filter { $0.progress >= 0.8 || $0.health != "onTrack" }
-    if let topBudget = atRiskBudgets.max(by: { $0.progress < $1.progress }) {
-      prompts.append("Why is \(topBudget.categoryName) at risk?")
-    } else {
-      prompts.append("Which budget should I watch?")
-    }
-
-    if let topGoal = snapshot.goals.min(by: { $0.progress < $1.progress }) {
-      prompts.append("How can I improve \(topGoal.title)?")
-    } else {
-      prompts.append("How are my savings goals doing?")
-    }
-
-    let topExpenseCategory = Dictionary(
-      grouping: snapshot.recentTransactions.filter { $0.type == "expense" },
-      by: \.categoryName
-    )
-      .mapValues { $0.reduce(0) { $0 + $1.amount } }
-      .max(by: { $0.value < $1.value })?.key
-
-    if let topExpenseCategory {
-      prompts.append("Explain my \(topExpenseCategory) spending")
-    } else {
-      prompts.append("Summarize my recent spending")
-    }
-
-    if let anomaly = snapshot.signals?.transactionAnomalies.first {
-      prompts.append("Why was \(anomaly.title) unusually high?")
-    }
-
-    prompts.append("What should I watch this month?")
-    return Array(prompts.prefix(4))
-  }
-
-  private static func statementFilterPrompts() -> [String] {
-    [
-      "Today's transactions",
-      "Yesterday's transactions",
-      "This week's transactions",
-      "Last week's transactions",
-      "This month's transactions",
-      "Last month's transactions",
-      "Last 3 months transactions",
-      "Year to date transactions",
-      "Transactions from 01/03/2026 to 31/03/2026"
+    _ = snapshot
+    return [
+      "Card spends this month",
+      "Travel above 1000",
+      "Compare this month vs last month",
+      "Show my recent transactions",
     ]
   }
 
@@ -952,14 +1119,22 @@ private final class AIInsightsChatViewModel: ObservableObject {
     """
 
     return """
-    You are FinSense AI, an on-device personal finance insights assistant.
-    You help the user understand budgeting, spending patterns, savings goals, and cash-flow habits using only the provided data.
+    You are FinSense AI, an on-device spend explorer.
+    You help the user search, compare, and explain transaction activity using only the provided data.
+    Your best tasks are:
+    1. filtering transactions by date range, category, payment method, or amount
+    2. comparing this month vs last month or this week vs last week
+    3. summarizing what changed in recent spending
+    Do not produce a full analytics report.
     Give concise, calm, practical insight in plain language.
+    Prefer short answers with a helpful headline and 2 to 4 concrete points.
     When the user asks about recent spending, latest spending, recent spends, or latest transactions, list the last 10 transactions explicitly.
     For each listed transaction, include the exact calendar day from the provided transaction date, the title, category, payment method, and amount.
     Prefer concrete transaction lists over vague summaries for those requests.
     Do not provide investment advice, tax advice, credit advice, loan advice, or regulated financial recommendations.
     If asked for those, say you can only help with spending, budgeting, and goal-tracking insights.
+    If the user asks what changed, compare periods, categories, and transaction activity.
+    If the user asks outside these tasks, gently redirect them to FinSense Insights for deeper analysis.
     Use bullet-style structure when useful, but keep responses short and actionable.
 
     Current finance context:
@@ -969,35 +1144,28 @@ private final class AIInsightsChatViewModel: ObservableObject {
 
   private func fallbackResponse(for prompt: String) -> String {
     let lowercased = prompt.lowercased()
+    if let comparisonResponse = periodComparisonResponse(for: prompt) {
+      return comparisonResponse
+    }
+    if let filteredResponse = transactionExplorerResponse(for: prompt) {
+      return filteredResponse.text
+    }
     if let statementResponse = statementTransactionsResponse(for: prompt) {
       return statementResponse.text
     }
-    if lowercased.contains("anomal") || lowercased.contains("unusual") || lowercased.contains("high") {
-      guard let anomaly = snapshot.signals?.transactionAnomalies.first else {
-        return "I’m not seeing a strong transaction anomaly right now. Your recent expenses look fairly close to your normal range."
+    if lowercased.contains("changed") || lowercased.contains("month") || lowercased.contains("summary") {
+      let categories = Dictionary(grouping: snapshot.recentTransactions.filter { $0.type == "expense" }, by: \.categoryName)
+        .mapValues { $0.reduce(0) { $0 + $1.amount } }
+      let topCategory = categories.max(by: { $0.value < $1.value })
+      let budgetWarning = (snapshot.signals?.overspendingHighlights ?? []).first?.categoryName
+      var response = "This month, your expenses are \(Self.currency(snapshot.summary?.expenses ?? 0)) against income of \(Self.currency(snapshot.summary?.income ?? 0))."
+      if let topCategory {
+        response += " Your biggest spending category is \(topCategory.key) at \(Self.currency(topCategory.value))."
       }
-      return "\(anomaly.title) stands out because it is materially above your recent average expense size. It’s worth double-checking whether it was planned, one-off, or a category starting to drift."
-    }
-    if lowercased.contains("top-up") || lowercased.contains("top up") || lowercased.contains("contribute") {
-      let suggestedTopUp = snapshot.signals?.suggestedGoalTopUp ?? 0
-      if suggestedTopUp <= 0 {
-        return "Cash flow looks tight right now, so I wouldn’t suggest an aggressive goal top-up from this cycle. Stabilizing spending first would give you a healthier base."
+      if let budgetWarning {
+        response += " \(budgetWarning) is the main budget to watch right now."
       }
-      return "A reasonable goal top-up from this cycle is about \(Self.currency(suggestedTopUp)) per goal. That keeps contributions aligned with current cash flow instead of forcing the plan."
-    }
-    if lowercased.contains("budget") {
-      let warningBudgets = snapshot.signals?.overspendingHighlights ?? snapshot.budgets.filter { $0.progress >= 0.8 || $0.health != "onTrack" }
-      if warningBudgets.isEmpty {
-        return "Your current budgets look reasonably stable. None of the tracked categories are near their limit right now."
-      }
-      let summary = warningBudgets.prefix(3).map { "\($0.categoryName) is at \(Int(($0.progress * 100).rounded()))% of its limit." }.joined(separator: " ")
-      return "Here’s the quick budget read: \(summary) If spending stays at the same pace, those categories deserve closer attention first."
-    }
-    if lowercased.contains("goal") || lowercased.contains("saving") {
-      guard let topGoal = snapshot.goals.max(by: { $0.progress < $1.progress }) else {
-        return "I don’t see any savings goals yet. Creating even one simple target can make the rest of the analysis more useful."
-      }
-      return "\(topGoal.title) is your strongest visible goal right now at \(Int((topGoal.progress * 100).rounded()))% progress. A consistent small top-up will usually matter more than a one-off adjustment."
+      return response
     }
     if lowercased.contains("recent spend") ||
       lowercased.contains("recent spending") ||
@@ -1009,29 +1177,30 @@ private final class AIInsightsChatViewModel: ObservableObject {
       return recentTransactionsListResponse()
     }
     if lowercased.contains("spending") || lowercased.contains("expense") {
-      let categories = Dictionary(grouping: snapshot.recentTransactions.filter { $0.type == "expense" }, by: \.categoryName)
-      let topCategory = categories
-        .mapValues { $0.reduce(0) { $0 + $1.amount } }
-        .max(by: { $0.value < $1.value })
-      if let topCategory {
-        return "\(recentTransactionsListResponse())\n\nYour recent spending is concentrated most heavily in \(topCategory.key). That’s the first category I’d review if you want a fast improvement."
-      }
       return recentTransactionsListResponse()
     }
 
-    if let quickInsight = snapshot.quickInsight, !quickInsight.isEmpty {
-      return quickInsight
-    }
-    return "I can help summarize budgets, spending categories, and savings progress from your current data. Try asking which budget needs attention or what changed in your recent spending."
+    return "Try asking things like card spends this month, travel above 1000, or compare this month vs last month. For deeper analysis, open FinSense Insights."
   }
 
   private func nextFollowUps(for prompt: String) -> [String] {
     let lowercased = prompt.lowercased()
     if statementTransactionsResponse(for: prompt) != nil {
       return [
-        "Show last week's transactions",
-        "Show this month's transactions",
-        "Which category appears most in this range?"
+        "Compare this month vs last month",
+        "Card spends this month",
+      ]
+    }
+    if periodComparisonResponse(for: prompt) != nil {
+      return [
+        "Travel above 1000",
+        "Show my recent transactions",
+      ]
+    }
+    if transactionExplorerResponse(for: prompt) != nil {
+      return [
+        "Compare this month vs last month",
+        "Show my recent transactions",
       ]
     }
     if lowercased.contains("recent spend") ||
@@ -1040,52 +1209,15 @@ private final class AIInsightsChatViewModel: ObservableObject {
       lowercased.contains("recent transaction")
     {
       return [
-        "Which spending category appears most often?",
-        "Which of these transactions is unusually high?",
-        "How do these affect my budget?"
-      ]
-    }
-    if lowercased.contains("anomal") || lowercased.contains("unusual") || lowercased.contains("high") {
-      return [
-        "Which expense category is drifting most?",
-        "How does this affect my monthly balance?",
-        "What should I watch next?"
-      ]
-    }
-    if lowercased.contains("top-up") || lowercased.contains("top up") || lowercased.contains("contribute") {
-      return [
-        "Which goal should get the first top-up?",
-        "How are my goals doing overall?",
-        "Can I afford more this month?"
-      ]
-    }
-    if lowercased.contains("budget") {
-      return [
-        "Which category needs action first?",
-        "How close am I to my budget limits?",
-        "Show my safest budget"
-      ]
-    }
-    if lowercased.contains("goal") || lowercased.contains("saving") {
-      return [
-        "Which goal is furthest behind?",
-        "What is my strongest goal?",
-        "How much progress did I make overall?"
-      ]
-    }
-    if lowercased.contains("spending") || lowercased.contains("expense") {
-      return [
-        "What is my top spending category?",
-        "Which recent transactions stand out?",
-        "How does this affect my balance?"
+        "Card spends this month",
+        "Compare this month vs last month",
       ]
     }
     return [
-      "Which budgets are at risk?",
-      "Why was a transaction unusually high?",
-      "Suggest a goal top-up amount",
-      "Summarize my recent spending",
-      "How are my goals doing?"
+      "Card spends this month",
+      "Travel above 1000",
+      "Compare this month vs last month",
+      "Show my recent transactions",
     ]
   }
 
@@ -1177,6 +1309,49 @@ private final class AIInsightsChatViewModel: ObservableObject {
     return expenseTransactions.first { $0.categoryName == bestCategory }
   }
 
+  private enum AmountFilterKind {
+    case minimum
+    case maximum
+  }
+
+  private struct AmountFilter {
+    let kind: AmountFilterKind
+    let amount: Double
+  }
+
+  private func matchedAmountFilter(in prompt: String) -> AmountFilter? {
+    let patterns: [(String, AmountFilterKind)] = [
+      ("(?:above|over|greater than|more than)\\s*(?:rs\\.?|₹)?\\s*([\\d,]+(?:\\.\\d+)?)", .minimum),
+      ("(?:below|under|less than)\\s*(?:rs\\.?|₹)?\\s*([\\d,]+(?:\\.\\d+)?)", .maximum)
+    ]
+
+    let nsPrompt = prompt as NSString
+    for (pattern, kind) in patterns {
+      guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
+        continue
+      }
+      guard let match = regex.firstMatch(in: prompt, range: NSRange(location: 0, length: nsPrompt.length)),
+        match.numberOfRanges > 1
+      else {
+        continue
+      }
+
+      let rawAmount = nsPrompt.substring(with: match.range(at: 1)).replacingOccurrences(of: ",", with: "")
+      if let amount = Double(rawAmount) {
+        return AmountFilter(kind: kind, amount: amount)
+      }
+    }
+    return nil
+  }
+
+  private func matchedPaymentMethod(in prompt: String) -> String? {
+    let normalizedPrompt = normalizedSearchText(prompt)
+    let paymentMethods = Array(Set(snapshot.recentTransactions.map(\.paymentMethod)))
+    return paymentMethods.first { method in
+      normalizedPrompt.contains(normalizedSearchText(method))
+    }
+  }
+
   private func matchedCategoryName(in prompt: String) -> String? {
     bestCategoryName(
       in: normalizedSearchText(prompt),
@@ -1250,6 +1425,237 @@ private final class AIInsightsChatViewModel: ObservableObject {
     }
 
     return "Here are your last 10 transactions:\n" + lines.joined(separator: "\n")
+  }
+
+  private func totalAmount(in range: (start: Date, end: Date, label: String), type: String) -> Double {
+    snapshot.recentTransactions.reduce(into: 0.0) { total, transaction in
+      guard transaction.type == type,
+        let transactionDate = parsedDate(from: transaction.transactionDate),
+        transactionDate >= range.start,
+        transactionDate <= range.end
+      else {
+        return
+      }
+      total += transaction.amount
+    }
+  }
+
+  private func topCategory(in range: (start: Date, end: Date, label: String)) -> (name: String, amount: Double)? {
+    let grouped = Dictionary(
+      grouping: snapshot.recentTransactions.filter { transaction in
+        guard transaction.type == "expense",
+          let transactionDate = parsedDate(from: transaction.transactionDate)
+        else {
+          return false
+        }
+        return transactionDate >= range.start && transactionDate <= range.end
+      },
+      by: \.categoryName
+    ).mapValues { $0.reduce(0) { $0 + $1.amount } }
+
+    guard let top = grouped.max(by: { $0.value < $1.value }) else {
+      return nil
+    }
+    return (top.key, top.value)
+  }
+
+  private func explorerHeadline(
+    transactions: [AIInsightsSnapshot.Transaction],
+    rangeLabel: String?,
+    category: String?,
+    paymentMethod: String?,
+    amountFilter: AmountFilter?,
+    isSortedByAmount: Bool
+  ) -> String {
+    var parts: [String] = []
+    parts.append(isSortedByAmount ? "Here are the biggest matching transactions" : "Here are \(transactions.count) matching transactions")
+
+    if let category {
+      parts.append("for \(category)")
+    }
+    if let paymentMethod {
+      parts.append("via \(paymentMethod)")
+    }
+    if let rangeLabel {
+      parts.append("in \(rangeLabel)")
+    }
+    if let amountFilter {
+      let comparator = amountFilter.kind == .minimum ? "above" : "below"
+      parts.append("\(comparator) \(Self.currency(amountFilter.amount))")
+    }
+
+    return parts.joined(separator: " ") + "."
+  }
+
+  private func explorerEmptyState(
+    rangeLabel: String?,
+    category: String?,
+    paymentMethod: String?,
+    amountFilter: AmountFilter?
+  ) -> String {
+    var parts = ["I couldn’t find any transactions"]
+    if let category {
+      parts.append("for \(category)")
+    }
+    if let paymentMethod {
+      parts.append("via \(paymentMethod)")
+    }
+    if let rangeLabel {
+      parts.append("in \(rangeLabel)")
+    }
+    if let amountFilter {
+      let comparator = amountFilter.kind == .minimum ? "above" : "below"
+      parts.append("\(comparator) \(Self.currency(amountFilter.amount))")
+    }
+    return parts.joined(separator: " ") + "."
+  }
+
+  private func transactionExplorerResponse(for prompt: String) -> AITransactionListResponse? {
+    let lowercased = prompt.lowercased()
+    let range = statementDateRange(for: lowercased)
+    let matchedCategory = matchedCategoryName(in: lowercased)
+    let matchedPaymentMethod = matchedPaymentMethod(in: lowercased)
+    let amountFilter = matchedAmountFilter(in: lowercased)
+    let asksForTransactions =
+      lowercased.contains("show") ||
+      lowercased.contains("spent") ||
+      lowercased.contains("spend") ||
+      lowercased.contains("expense") ||
+      lowercased.contains("transaction")
+
+    guard asksForTransactions || matchedCategory != nil || matchedPaymentMethod != nil || amountFilter != nil else {
+      return nil
+    }
+
+    var filteredTransactions = snapshot.recentTransactions.filter { transaction in
+      if let range {
+        guard let transactionDate = parsedDate(from: transaction.transactionDate) else {
+          return false
+        }
+        guard transactionDate >= range.start && transactionDate <= range.end else {
+          return false
+        }
+      }
+
+      if let matchedCategory,
+         normalizedSearchText(transaction.categoryName) != normalizedSearchText(matchedCategory) {
+        return false
+      }
+
+      if let matchedPaymentMethod,
+         normalizedSearchText(transaction.paymentMethod) != normalizedSearchText(matchedPaymentMethod) {
+        return false
+      }
+
+      if let amountFilter {
+        switch amountFilter.kind {
+        case .minimum:
+          guard transaction.amount >= amountFilter.amount else { return false }
+        case .maximum:
+          guard transaction.amount <= amountFilter.amount else { return false }
+        }
+      }
+
+      if lowercased.contains("expense") || lowercased.contains("spent") || lowercased.contains("spend") {
+        return transaction.type == "expense"
+      }
+
+      if lowercased.contains("income") {
+        return transaction.type == "income"
+      }
+
+      return true
+    }
+
+    let sortByAmount =
+      lowercased.contains("biggest") ||
+      lowercased.contains("highest") ||
+      lowercased.contains("largest")
+
+    if sortByAmount {
+      filteredTransactions.sort { $0.amount > $1.amount }
+      filteredTransactions = Array(filteredTransactions.prefix(5))
+    } else {
+      filteredTransactions = Array(filteredTransactions.prefix(10))
+    }
+
+    guard !filteredTransactions.isEmpty else {
+      return AITransactionListResponse(
+        text: explorerEmptyState(
+          rangeLabel: range?.label,
+          category: matchedCategory,
+          paymentMethod: matchedPaymentMethod,
+          amountFilter: amountFilter
+        ),
+        transactions: []
+      )
+    }
+
+    return AITransactionListResponse(
+      text: explorerHeadline(
+        transactions: filteredTransactions,
+        rangeLabel: range?.label,
+        category: matchedCategory,
+        paymentMethod: matchedPaymentMethod,
+        amountFilter: amountFilter,
+        isSortedByAmount: sortByAmount
+      ),
+      transactions: filteredTransactions
+    )
+  }
+
+  private func periodComparisonResponse(for prompt: String) -> String? {
+    let lowercased = prompt.lowercased()
+    let calendar = Calendar.current
+    let now = Date()
+
+    let currentRange: (start: Date, end: Date, label: String)?
+    let previousRange: (start: Date, end: Date, label: String)?
+
+    if lowercased.contains("this month") && lowercased.contains("last month") {
+      currentRange = monthRange(monthsAgo: 0, calendar: calendar, now: now, label: "this month")
+      previousRange = monthRange(monthsAgo: 1, calendar: calendar, now: now, label: "last month")
+    } else if lowercased.contains("this week") && lowercased.contains("last week") {
+      currentRange = weekRange(weeksAgo: 0, calendar: calendar, now: now, label: "this week")
+      previousRange = weekRange(weeksAgo: 1, calendar: calendar, now: now, label: "last week")
+    } else {
+      return nil
+    }
+
+    guard lowercased.contains("compare"),
+      let currentRange,
+      let previousRange
+    else {
+      return nil
+    }
+
+    let currentExpenses = totalAmount(in: currentRange, type: "expense")
+    let previousExpenses = totalAmount(in: previousRange, type: "expense")
+    let currentIncome = totalAmount(in: currentRange, type: "income")
+    let previousIncome = totalAmount(in: previousRange, type: "income")
+
+    let currentTopCategory = topCategory(in: currentRange)
+    let previousTopCategory = topCategory(in: previousRange)
+    let expenseDelta = currentExpenses - previousExpenses
+    let deltaDirection = expenseDelta >= 0 ? "up" : "down"
+
+    var lines = [
+      "Comparison: \(currentRange.label.capitalized) vs \(previousRange.label)",
+      "• Expenses are \(deltaDirection) by \(Self.currency(abs(expenseDelta))) (\(Self.currency(currentExpenses)) vs \(Self.currency(previousExpenses))).",
+      "• Income is \(Self.currency(currentIncome)) vs \(Self.currency(previousIncome)).",
+    ]
+
+    if let currentTopCategory {
+      let previousText: String
+      if let previousTopCategory {
+        previousText = "Last period it was \(previousTopCategory.name) at \(Self.currency(previousTopCategory.amount))."
+      } else {
+        previousText = "No strong top category stood out last period."
+      }
+      lines.append("• Top spending category is \(currentTopCategory.name) at \(Self.currency(currentTopCategory.amount)). \(previousText)")
+    }
+
+    return lines.joined(separator: "\n")
   }
 
   private func statementDateRange(for prompt: String) -> (start: Date, end: Date, label: String)? {

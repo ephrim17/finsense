@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '../../features/budgets/domain/entities/budget_plan.dart';
 import '../../features/transactions/domain/entities/transaction_record.dart';
 import '../constants/widget_constants.dart';
 
@@ -13,9 +14,12 @@ class WidgetSyncService {
     WidgetConstants.channelName,
   );
 
+  static String _enumLabel(Object value) => value.toString().split('.').last;
+
   Future<void> syncSnapshot({
     required String currencyCode,
     required List<TransactionRecord> transactions,
+    required List<BudgetPlan> budgets,
   }) async {
     if (!Platform.isIOS) {
       return;
@@ -37,16 +41,41 @@ class WidgetSyncService {
     final payload = <String, dynamic>{
       'currencyCode': currencyCode,
       'monthExpenseTotal': monthExpenses,
-      'recentTransactions': sortedTransactions.take(5).map((item) {
+      'recentTransactions': sortedTransactions.take(20).map((item) {
         return <String, dynamic>{
           'id': item.id,
           'title': item.title,
           'categoryName': item.categoryName,
           'amount': item.amount,
           'type': item.type.name,
+          'paymentMethod': item.paymentMethod,
+          'accountId': item.accountId,
+          'note': item.note,
           'transactionDate': item.transactionDate.toIso8601String(),
         };
       }).toList(),
+      'budgetHighlights':
+          (budgets
+                  .where(
+                    (item) =>
+                        item.progress >= 0.8 ||
+                        _enumLabel(item.health) != 'onTrack',
+                  )
+                  .toList()
+                ..sort((a, b) => b.progress.compareTo(a.progress)))
+              .take(3)
+              .map((item) {
+                return <String, dynamic>{
+                  'id': item.id,
+                  'categoryName': item.categoryName,
+                  'limitAmount': item.limitAmount,
+                  'spentAmount': item.spentAmount,
+                  'remainingAmount': item.remainingAmount,
+                  'progress': item.progress,
+                  'health': _enumLabel(item.health),
+                };
+              })
+              .toList(),
       'updatedAt': now.toIso8601String(),
     };
 

@@ -38,6 +38,21 @@ enum SwiftUIScreenRegistry {
           )
         }
       )
+    case .billScanner:
+      if #available(iOS 26.0, *) {
+        BillScannerHostView(
+          channel: channel,
+          onClose: {
+            channel.invokeMethod("closeBillScanner", arguments: nil)
+          }
+        )
+      } else {
+        UnsupportedBillScannerView(
+          onDismiss: {
+            channel.invokeMethod("closeBillScanner", arguments: nil)
+          }
+        )
+      }
     }
   }
 }
@@ -46,4 +61,5 @@ enum SwiftUIScreenID: String {
   case commandDeck
   case financeTabBar
   case aiInsightsChat
+  case billScanner
 }

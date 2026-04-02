@@ -41,6 +41,7 @@ class TransactionActionController extends StateNotifier<AsyncValue<void>> {
     required TransactionType type,
     String? note,
     String? id,
+    DateTime? createdAt,
   }) async {
     final now = DateTime.now();
     state = const AsyncLoading();
@@ -56,7 +57,7 @@ class TransactionActionController extends StateNotifier<AsyncValue<void>> {
           accountId: accountId,
           paymentMethod: paymentMethod,
           note: note,
-          createdAt: now,
+          createdAt: createdAt ?? now,
           transactionDate: transactionDate,
           updatedAt: now,
         ),

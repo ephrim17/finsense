@@ -5,9 +5,14 @@ import '../../../transactions/presentation/controllers/transaction_providers.dar
 import '../../domain/entities/report_snapshot.dart';
 
 enum ReportViewMode { expenses, income }
+enum ReportChartMode { bar, pie }
 
 final reportViewModeProvider = StateProvider<ReportViewMode>(
   (ref) => ReportViewMode.expenses,
+);
+
+final reportChartModeProvider = StateProvider<ReportChartMode>(
+  (ref) => ReportChartMode.pie,
 );
 
 final reportSnapshotProvider = Provider<ReportSnapshot>((ref) {

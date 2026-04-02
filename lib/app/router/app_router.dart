@@ -5,13 +5,15 @@ import '../../core/enums/finance_enums.dart';
 import '../../features/auth/presentation/screens/auth_gate.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
-import '../../features/budgets/presentation/screens/budgets_screen.dart';
 import '../../features/dashboard/presentation/screens/home_shell_screen.dart';
 import '../../features/dashboard/presentation/screens/ai_insights_screen.dart';
-import '../../features/goals/presentation/screens/goals_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/plan/presentation/screens/plan_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/reports/presentation/screens/reports_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_detail_screen.dart';
+import '../../features/transactions/presentation/screens/bill_scanner_screen.dart';
+import '../../features/transactions/presentation/screens/transactions_ai_insights_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_editor_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
 
@@ -23,6 +25,10 @@ final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AuthGate()),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
     GoRoute(
       path: '/sign-in',
       builder: (context, state) => const SignInScreen(),
@@ -65,16 +71,16 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/budgets',
-              builder: (context, state) => const BudgetsScreen(),
+              path: '/plan',
+              builder: (context, state) => const PlanScreen(),
             ),
           ],
         ),
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/goals',
-              builder: (context, state) => const GoalsScreen(),
+              path: '/insights',
+              builder: (context, state) => const TransactionsAiInsightsScreen(),
             ),
           ],
         ),
@@ -95,8 +101,25 @@ final GoRouter appRouter = GoRouter(
         final initialType = typeParam == 'income'
             ? TransactionType.income
             : TransactionType.expense;
-        return TransactionEditorScreen(initialType: initialType);
+        return TransactionEditorScreen(
+          initialType: initialType,
+          initialTransaction: state.extra as dynamic,
+        );
       },
+    ),
+    GoRoute(
+      path: '/transactions/:transactionId/edit',
+      builder: (context, state) => TransactionEditorScreen(
+        initialTransaction: state.extra as dynamic,
+      ),
+    ),
+    GoRoute(
+      path: '/transactions/scan-bill',
+      builder: (context, state) => const BillScannerScreen(),
+    ),
+    GoRoute(
+      path: '/transactions/ai-insights',
+      builder: (context, state) => const TransactionsAiInsightsScreen(),
     ),
     GoRoute(
       path: '/transactions/:transactionId',
