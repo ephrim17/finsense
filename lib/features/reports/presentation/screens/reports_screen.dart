@@ -39,6 +39,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final activeTotal = isExpenseMode
         ? report.totalExpenses
         : report.totalIncome;
+    final reportSummaryAsync = ref.watch(reportAiSummaryProvider(viewMode));
     final categories = activeCategorySpend.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final selectedEntry = _selectedCategoryIndex != null &&
@@ -448,6 +449,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            _ReportAiSummaryCard(
+              summaryAsync: reportSummaryAsync,
+              isExpenseMode: isExpenseMode,
+            ),
+            const SizedBox(height: 16),
             if (activeCategorySpend.isEmpty)
               EmptyStateCard(
                 title: isExpenseMode
@@ -573,6 +579,197 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     );
                     },
                   ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportAiSummaryCard extends ConsumerWidget {
+  const _ReportAiSummaryCard({
+    required this.summaryAsync,
+    required this.isExpenseMode,
+  });
+
+  final AsyncValue summaryAsync;
+  final bool isExpenseMode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumCard(
+      child: summaryAsync.when(
+        loading: () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'AI Report Summary',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            const LinearProgressIndicator(minHeight: 8),
+            const SizedBox(height: 12),
+            Text(
+              'FinSense is reading your ${isExpenseMode ? 'expense' : 'income'} report...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        error: (error, _) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFEEE7),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.insights_rounded,
+                    color: Color(0xFFED6A3B),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'AI Report Summary',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'The report summary is unavailable right now.',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              error.toString(),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.45,
+              ),
+            ),
+          ],
+        ),
+        data: (payload) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF8B5CF6), Color(0xFF6D5DF6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Report Summary',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isExpenseMode
+                            ? 'Gemini take on your current expense mix'
+                            : 'Gemini take on your current income mix',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              payload.headline,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              payload.summary,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                height: 1.5,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            if (payload.actionItems.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.lightPurple,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.bolt_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        payload.actionItems.first,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
